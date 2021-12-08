@@ -13,6 +13,8 @@ on:
     secrets:
       azureCredentials:
         required: true
+      gitCloneToken:
+        required: true
 
 #Note: the 'AZURE_SP' secret is required to be added into GitHub Secrets. See this blog post for details: https://samlearnsazure.blog/2019/12/13/github-actions/
 jobs:
@@ -24,6 +26,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
+          token: ${{ secrets.gitCloneToken }}
       - name: Azure Login
         uses: azure/login@v1
         with:
