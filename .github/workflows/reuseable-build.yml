@@ -34,7 +34,8 @@ jobs:
       - name: Build Images
         uses: azure/cli@v1
         with:
-          inlineScript: cd cicd
+          inlineScript: |
+            cd cicd
             ./run-build.sh CI ${{ github.run_id }} ${{ env.verbose }} ${{ env.containerMappingsFilePath }}
           azcliversion: latest
       - name: Upload artifact
