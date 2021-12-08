@@ -1,0 +1,41 @@
+name: cicd-build
+on:
+  workflow_call:
+    inputs:
+      verbose:
+        required: false
+        type: string
+        default: true
+      containerMappingsFilePath:
+        required: false
+        type: string
+        default: container-mappings.yaml
+    secrets:
+      azureCredentials:
+        required: true
+
+#Note: the 'AZURE_SP' secret is required to be added into GitHub Secrets. See this blog post for details: https://samlearnsazure.blog/2019/12/13/github-actions/
+jobs:
+  BuildAndPushImages:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.azureCredentials }}
+      - name: Build Images
+        uses: azure/cli@v1
+        with:
+          inlineScript: cd cicd
+            ./run-build.sh CI ${{ github.run_id }} ${{ env.verbose }} ${{ env.containerMappingsFilePath }}
+          azcliversion: latest
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts-from-build
+          path: cicd/build-artifacts
